@@ -25,20 +25,29 @@ public class Library {
 	public final String name;
 	public final String url;
 	public final Path inputPath;
+	private final String artifactUrl;
+	private final String artifactPath;
 
 	public Library(String name, String url, Path inputPath) {
 		this.name = name;
 		this.url = url;
 		this.inputPath = inputPath;
+		this.artifactUrl = null;
+		this.artifactPath = null;
 	}
 
 	public Library(Json json) {
 		name = json.at("name").asString();
-		url = json.at("url").asString();
+		url = json.has("url") ? json.at("url").asString() : null;
 		inputPath = null;
+		Json artifact = json.has("downloads") ? json.at("downloads").at("artifact") : null;
+		artifactUrl = artifact == null ? null : artifact.at("url").asString();
+		artifactPath = artifact == null ? null : artifact.at("path").asString();
 	}
 
 	public String getURL() {
+		if (artifactUrl != null) return artifactUrl;
+
 		String path;
 		String[] parts = this.name.split(":", 3);
 		path = parts[0].replace(".", "/") + "/" + parts[1] + "/" + parts[2] + "/" + parts[1] + "-" + parts[2] + ".jar";
@@ -47,6 +56,8 @@ public class Library {
 	}
 
 	public String getPath() {
+		if (artifactPath != null) return artifactPath.replace('/', File.separatorChar);
+
 		String[] parts = this.name.split(":", 3);
 		String path = parts[0].replace(".", File.separator) + File.separator + parts[1] + File.separator + parts[2] + File.separator + parts[1] + "-" + parts[2] + ".jar";
 		return path.replaceAll(" ", "_");

@@ -25,17 +25,22 @@ import java.text.MessageFormat;
 import mjson.Json;
 
 import net.fabricmc.installer.LoaderVersion;
+import net.fabricmc.installer.NeoFabricReleaseProvider;
 import net.fabricmc.installer.util.FabricService;
 import net.fabricmc.installer.util.InstallerProgress;
 import net.fabricmc.installer.util.Library;
-import net.fabricmc.installer.util.Reference;
 import net.fabricmc.installer.util.Utils;
 
 public class ClientInstaller {
 	public static String install(Path mcDir, String gameVersion, LoaderVersion loaderVersion, InstallerProgress progress) throws IOException {
-		System.out.println("Installing " + gameVersion + " with fabric " + loaderVersion.name);
+		NeoFabricReleaseProvider.requireSupportedVersions(gameVersion, loaderVersion);
+		System.out.println("Installing " + gameVersion + " with NeoFabric " + loaderVersion.name);
 
-		String profileName = String.format("%s-%s-%s", Reference.LOADER_NAME, loaderVersion.name, gameVersion);
+		String profileName = NeoFabricReleaseProvider.PROFILE_ID;
+		Path libsDir = mcDir.resolve("libraries");
+		progress.updateProgress(new MessageFormat(Utils.BUNDLE.getString("progress.download.library.entry")).format(new Object[]{NeoFabricReleaseProvider.LOADER_LIBRARY_NAME}));
+		Path loaderJar = NeoFabricReleaseProvider.downloadLoader(libsDir);
+		Json json = NeoFabricReleaseProvider.createClientProfile(loaderJar);
 
 		Path versionsDir = mcDir.resolve("versions");
 		Path profileDir = versionsDir.resolve(profileName);
@@ -48,25 +53,24 @@ public class ClientInstaller {
 		Path profileJar = profileDir.resolve(profileName + ".jar");
 		Files.deleteIfExists(profileJar);
 
-		Json json = FabricService.queryMetaJson(String.format("v2/versions/loader/%s/%s/profile/json", gameVersion, loaderVersion.name));
-		Files.write(profileJson, json.toString().getBytes(StandardCharsets.UTF_8));
-
 		/*
 		Downloading the libraries isn't strictly necessary as the launcher will do it for us.
 		Do it anyway in case the launcher fails, we know we have a working connection to maven here.
 		 */
-		Path libsDir = mcDir.resolve("libraries");
-
 		for (Json libraryJson : json.at("libraries").asJsonList()) {
 			Library library = new Library(libraryJson);
 			Path libraryFile = libsDir.resolve(library.getPath());
 			String url = library.getURL();
+
+			// The pinned release has already been downloaded and verified by the provider.
+			if (NeoFabricReleaseProvider.LOADER_LIBRARY_NAME.equals(library.name)) continue;
 
 			//System.out.println("Downloading "+url+" to "+libraryFile);
 			progress.updateProgress(new MessageFormat(Utils.BUNDLE.getString("progress.download.library.entry")).format(new Object[]{library.name}));
 			FabricService.downloadSubstitutedMaven(url, libraryFile);
 		}
 
+		Files.write(profileJson, json.toString().getBytes(StandardCharsets.UTF_8));
 		progress.updateProgress(Utils.BUNDLE.getString("progress.done"));
 
 		return profileName;

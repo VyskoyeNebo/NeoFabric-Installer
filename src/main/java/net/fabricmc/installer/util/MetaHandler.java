@@ -26,11 +26,21 @@ import mjson.Json;
 public class MetaHandler extends CompletableHandler<List<MetaHandler.GameVersion>> {
 	private final String name;
 	private final String metaPath;
+	private final String fixedVersion;
 	private List<GameVersion> versions;
 
 	public MetaHandler(String name, String path) {
+		this(name, path, null);
+	}
+
+	private MetaHandler(String name, String path, String fixedVersion) {
 		this.name = name;
 		this.metaPath = path;
+		this.fixedVersion = fixedVersion;
+	}
+
+	public static MetaHandler fixedVersion(String name, String version) {
+		return new MetaHandler(name, null, version);
 	}
 
 	public String getName() {
@@ -38,7 +48,8 @@ public class MetaHandler extends CompletableHandler<List<MetaHandler.GameVersion
 	}
 
 	public void load() throws IOException {
-		Json json = FabricService.queryMetaJson(metaPath);
+		Json json = fixedVersion == null ? FabricService.queryMetaJson(metaPath)
+				: Json.array(Json.object("version", fixedVersion, "stable", true));
 
 		this.versions = json.asJsonList()
 				.stream()

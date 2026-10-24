@@ -1,0 +1,10 @@
+NeoFabric Installer window and launcher profile icons
+
+Downloaded unchanged from Minecraft Wiki:
+https://minecraft.wiki/images/Redstone_Repeater_%28S%29_JE5_BE2.png?aed92
+
+Source page:
+https://minecraft.wiki/w/Redstone_Repeater
+
+Both icon.png and profile_icon.png use the same square redstone repeater render.
+This attribution does not change the copyright of the original artwork.

@@ -56,7 +56,7 @@ public class ProfileInstaller {
 
 		Json profiles = jsonObject.at("profiles");
 
-		if (profiles == null) {
+		if (profiles == null || profiles.isNull()) {
 			profiles = Json.object();
 			jsonObject.set("profiles", profiles);
 		}
@@ -65,12 +65,14 @@ public class ProfileInstaller {
 
 		Json profile = profiles.at(profileName);
 
-		if (profile == null) {
-			profile = createProfile(profileName);
+		if (profile == null || profile.isNull()) {
+			profile = createProfile(Reference.LOADER_DISPLAY_NAME + " " + gameVersion);
 			profiles.set(profileName, profile);
 		}
 
 		profile.set("lastVersionId", name);
+		profile.set("name", Reference.LOADER_DISPLAY_NAME + " " + gameVersion);
+		profile.set("icon", Utils.getProfileIcon());
 
 		Utils.writeToFile(launcherProfiles, jsonObject.toString());
 
@@ -88,7 +90,6 @@ public class ProfileInstaller {
 		jsonObject.set("type", "custom");
 		jsonObject.set("created", Utils.ISO_8601.format(new Date()));
 		jsonObject.set("lastUsed", Utils.ISO_8601.format(new Date()));
-		jsonObject.set("icon", Utils.getProfileIcon());
 		return jsonObject;
 	}
 

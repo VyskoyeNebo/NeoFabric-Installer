@@ -15,6 +15,14 @@ version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
 
 repositories {
 	maven {
+		url = 'https://maven.aliyun.com/repository/public'
+		content { excludeGroupByRegex 'net\\.fabricmc(\\..*)?' }
+	}
+	maven {
+		url = 'https://maven.aliyun.com/repository/gradle-plugin'
+		content { excludeGroupByRegex 'net\\.fabricmc(\\..*)?' }
+	}
+	maven {
 		name = 'Fabric'
 		url = 'https://maven.fabricmc.net/'
 	}
@@ -38,7 +46,7 @@ dependencies {
 }
 
 base {
-	archivesName = "fabric-installer"
+	archivesName = "neofabric-installer"
 }
 
 java {
@@ -60,7 +68,7 @@ checkstyle {
 
 shadowJar {
 	manifest {
-		attributes 'Implementation-Title': 'FabricInstaller',
+		attributes 'Implementation-Title': 'NeoFabricInstaller',
 				'Implementation-Version': project.version,
 				'Main-Class': 'net.fabricmc.installer.Main'
 	}
@@ -73,7 +81,7 @@ shadowJar {
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 tasks.register('serverJar', ShadowJar) {
 	manifest {
-		attributes 'Implementation-Title': 'FabricInstaller',
+		attributes 'Implementation-Title': 'NeoFabricInstaller',
 			'Implementation-Version': project.version,
 			'Main-Class': 'net.fabricmc.installer.ServerLauncher',
 			'Enable-Native-Access': 'ALL-UNNAMED'
@@ -88,7 +96,8 @@ tasks.register('serverJar', ShadowJar) {
 	from sourceSets.main.output
 	configurations = [project.configurations.compileClasspath]
 }
-assemble.dependsOn serverJar
+// This release provides client installation; keep the upstream server task opt-in.
+assemble.dependsOn shadowJar
 
 def bootstrapVersion = "0.7.0"
 def bootstrapArch = "i686"

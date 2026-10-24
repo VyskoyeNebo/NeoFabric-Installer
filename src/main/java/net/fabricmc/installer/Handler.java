@@ -97,6 +97,7 @@ public abstract class Handler implements InstallerProgress {
 				createSpacer(),
 				snapshotCheckBox = new JCheckBox(Utils.BUNDLE.getString("option.show.snapshots")));
 		snapshotCheckBox.setSelected(false);
+		snapshotCheckBox.setEnabled(false);
 		snapshotCheckBox.addActionListener(e -> {
 			if (Main.GAME_VERSION_META.isComplete()) {
 				updateGameVersions();
@@ -142,8 +143,6 @@ public abstract class Handler implements InstallerProgress {
 				}
 			}
 
-			loaderVersionComboBox.addItem(SELECT_CUSTOM_ITEM);
-
 			//If no stable versions are found, default to the latest version
 			if (stableIndex == -1) {
 				stableIndex = 0;
@@ -182,7 +181,7 @@ public abstract class Handler implements InstallerProgress {
 
 			JFileChooser chooser = new JFileChooser();
 			chooser.setCurrentDirectory(new File("."));
-			chooser.setDialogTitle("Select Fabric Loader JAR");
+			chooser.setDialogTitle("Select NeoFabric Loader JAR");
 			chooser.setFileFilter(new FileNameExtensionFilter("Java Archive", "jar"));
 			chooser.setAcceptAllFileFilterUsed(false);
 

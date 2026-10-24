@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.fabricmc.installer.client.ClientHandler;
-import net.fabricmc.installer.server.ServerHandler;
 import net.fabricmc.installer.util.ArgumentParser;
 import net.fabricmc.installer.util.CrashDialog;
 import net.fabricmc.installer.util.FabricService;
@@ -43,10 +42,10 @@ public class Main {
 
 		System.setProperty("java.net.useSystemProxies", "true");
 
-		System.out.println("Loading Fabric Installer: " + Main.class.getPackage().getImplementationVersion());
+		System.out.println("Loading NeoFabric Installer: " + Main.class.getPackage().getImplementationVersion());
 
 		HANDLERS.add(new ClientHandler());
-		HANDLERS.add(new ServerHandler());
+		// Server installation is not exposed until it uses the NeoFabric release provider.
 
 		ArgumentParser argumentParser = ArgumentParser.create(args);
 		String command = argumentParser.getCommand().orElse(null);
@@ -59,8 +58,8 @@ public class Main {
 			FabricService.setFixed(metaUrl, mavenUrl);
 		}
 
-		GAME_VERSION_META = new MetaHandler("game", "v2/versions/game");
-		LOADER_META = new MetaHandler("loader", "v2/versions/loader");
+		GAME_VERSION_META = MetaHandler.fixedVersion("game", NeoFabricReleaseProvider.MINECRAFT_VERSION);
+		LOADER_META = MetaHandler.fixedVersion("loader", NeoFabricReleaseProvider.LOADER_VERSION);
 
 		//Default to the help command in a headless environment
 		if (GraphicsEnvironment.isHeadless() && command == null) {

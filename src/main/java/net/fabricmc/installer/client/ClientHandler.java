@@ -44,7 +44,6 @@ import net.fabricmc.installer.launcher.MojangLauncherHelperWrapper;
 import net.fabricmc.installer.util.ArgumentParser;
 import net.fabricmc.installer.util.InstallerProgress;
 import net.fabricmc.installer.util.NoopCaret;
-import net.fabricmc.installer.util.Reference;
 import net.fabricmc.installer.util.Utils;
 
 public class ClientHandler extends Handler {
@@ -122,7 +121,7 @@ public class ClientHandler extends Handler {
 	}
 
 	private void showInstalledMessage(String loaderVersion, String gameVersion, Path modsDirectory) {
-		JEditorPane pane = new JEditorPane("text/html", "<html><body style=\"" + buildEditorPaneStyle() + "\">" + new MessageFormat(Utils.BUNDLE.getString("prompt.install.successful")).format(new Object[]{loaderVersion, gameVersion, Reference.FABRIC_API_URL}) + "</body></html>");
+		JEditorPane pane = new JEditorPane("text/html", "<html><body style=\"" + buildEditorPaneStyle() + "\">" + new MessageFormat(Utils.BUNDLE.getString("prompt.install.successful")).format(new Object[]{loaderVersion, gameVersion}) + "</body></html>");
 		pane.setBackground(new Color(0, 0, 0, 0));
 		pane.setEditable(false);
 		pane.setCaret(new NoopCaret());
