@@ -58,7 +58,7 @@ public class Main {
 			FabricService.setFixed(metaUrl, mavenUrl);
 		}
 
-		GAME_VERSION_META = MetaHandler.fixedVersion("game", NeoFabricReleaseProvider.MINECRAFT_VERSION);
+		GAME_VERSION_META = MetaHandler.fixedVersions("game", NeoFabricReleaseProvider.MINECRAFT_VERSIONS);
 		LOADER_META = MetaHandler.fixedVersion("loader", NeoFabricReleaseProvider.LOADER_VERSION);
 
 		//Default to the help command in a headless environment

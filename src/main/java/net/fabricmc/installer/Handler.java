@@ -32,12 +32,14 @@ import java.util.Locale;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -96,6 +98,7 @@ public abstract class Handler implements InstallerProgress {
 				gameVersionComboBox = new JComboBox<>(),
 				createSpacer(),
 				snapshotCheckBox = new JCheckBox(Utils.BUNDLE.getString("option.show.snapshots")));
+		gameVersionComboBox.setRenderer(new GameVersionRenderer());
 		snapshotCheckBox.setSelected(false);
 		snapshotCheckBox.setEnabled(false);
 		snapshotCheckBox.addActionListener(e -> {
@@ -168,7 +171,21 @@ public abstract class Handler implements InstallerProgress {
 
 		gameVersionComboBox.setSelectedIndex(0);
 
-		InstallerGui.instance.updateSize(false);
+		if (InstallerGui.instance != null) InstallerGui.instance.updateSize(false);
+	}
+
+	@SuppressWarnings("serial")
+	private static final class GameVersionRenderer extends DefaultListCellRenderer {
+		@Override
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focused) {
+			JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focused);
+
+			if ("1.20.5".equals(value) || "1.20.6".equals(value)) {
+				label.setText(value + " (Java 21)");
+			}
+
+			return label;
+		}
 	}
 
 	protected LoaderVersion queryLoaderVersion() {

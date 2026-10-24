@@ -25,6 +25,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -35,11 +38,11 @@ import net.fabricmc.installer.util.Library;
 import net.fabricmc.installer.util.Utils;
 
 public final class NeoFabricReleaseProvider {
-	public static final String MINECRAFT_VERSION = "1.20.1";
-	public static final String LOADER_VERSION = "0.20.1";
-	public static final String PROFILE_ID = "neofabric-loader-" + LOADER_VERSION + "-" + MINECRAFT_VERSION;
-	public static final String LOADER_URL = "https://github.com/VyskoyeNebo/NeoFabric/releases/download/v0.20.1/neofabric-loader-0.20.1.jar";
-	public static final String LOADER_SHA256 = "b72a8e91dc262f68a0a83a116fb9b3023a235bdb693e2d9cb7fda15a82d30bdb";
+	public static final List<String> MINECRAFT_VERSIONS = Collections.unmodifiableList(Arrays.asList(
+			"1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1"));
+	public static final String LOADER_VERSION = "1.0.0";
+	public static final String LOADER_URL = "https://github.com/VyskoyeNebo/NeoFabric/releases/download/v1.0.0/neofabric-loader-1.0.0.jar";
+	public static final String LOADER_SHA256 = "155b81273ac03d56c3ea6c67e7fd7a64be5e3d29aa24551deceb09e413c8673d";
 	public static final String LOADER_LIBRARY_NAME = "io.github.vyskoyenebo:neofabric-loader:" + LOADER_VERSION;
 	public static final String LOADER_LIBRARY_PATH = "io/github/vyskoyenebo/neofabric-loader/" + LOADER_VERSION + "/neofabric-loader-" + LOADER_VERSION + ".jar";
 	private static final String FABRIC_MAVEN = "https://maven.fabricmc.net/";
@@ -47,10 +50,19 @@ public final class NeoFabricReleaseProvider {
 	private NeoFabricReleaseProvider() {
 	}
 
-	public static void requireSupportedVersions(String gameVersion, LoaderVersion loaderVersion) throws IOException {
-		if (!MINECRAFT_VERSION.equals(gameVersion)) {
-			throw new IOException("NeoFabric only supports Minecraft " + MINECRAFT_VERSION + "; requested: " + gameVersion);
+	public static String profileId(String gameVersion) throws IOException {
+		requireSupportedGameVersion(gameVersion);
+		return "neofabric-loader-" + LOADER_VERSION + "-" + gameVersion;
+	}
+
+	private static void requireSupportedGameVersion(String gameVersion) throws IOException {
+		if (!MINECRAFT_VERSIONS.contains(gameVersion)) {
+			throw new IOException("NeoFabric only supports Minecraft 1.20.1 through 1.20.6 official releases; requested: " + gameVersion);
 		}
+	}
+
+	public static void requireSupportedVersions(String gameVersion, LoaderVersion loaderVersion) throws IOException {
+		requireSupportedGameVersion(gameVersion);
 
 		if (loaderVersion == null || !LOADER_VERSION.equals(loaderVersion.name) || loaderVersion.path != null) {
 			throw new IOException("NeoFabric Installer only supports the official NeoFabric " + LOADER_VERSION + " release; custom Loader jars are not supported.");
@@ -85,7 +97,8 @@ public final class NeoFabricReleaseProvider {
 		}
 	}
 
-	public static Json createClientProfile(Path loaderJar) throws IOException {
+	public static Json createClientProfile(Path loaderJar, String gameVersion) throws IOException {
+		String profileId = profileId(gameVersion);
 		verifyLoader(loaderJar);
 
 		try (ZipFile zip = new ZipFile(loaderJar.toFile())) {
@@ -100,7 +113,7 @@ public final class NeoFabricReleaseProvider {
 			Json libraries = Json.array();
 			libraries.add(Json.object("name", LOADER_LIBRARY_NAME, "downloads", Json.object("artifact", Json.object(
 					"path", LOADER_LIBRARY_PATH, "url", LOADER_URL, "sha1", digest(loaderJar, "SHA-1"), "size", Files.size(loaderJar)))));
-			libraries.add(Json.object("name", "net.fabricmc:intermediary:" + MINECRAFT_VERSION, "url", FABRIC_MAVEN));
+			libraries.add(Json.object("name", "net.fabricmc:intermediary:" + gameVersion, "url", FABRIC_MAVEN));
 
 			for (String side : new String[] {"common", "client"}) {
 				for (Json library : metadata.at("libraries").at(side).asJsonList()) {
@@ -114,8 +127,10 @@ public final class NeoFabricReleaseProvider {
 				}
 			}
 
-			return Json.object("id", PROFILE_ID, "inheritsFrom", MINECRAFT_VERSION, "type", "release",
+			int javaVersion = "1.20.5".equals(gameVersion) || "1.20.6".equals(gameVersion) ? 21 : 17;
+			return Json.object("id", profileId, "inheritsFrom", gameVersion, "type", "release",
 					"mainClass", metadata.at("mainClass").at("client").asString(),
+					"javaVersion", Json.object("component", javaVersion == 21 ? "java-runtime-delta" : "java-runtime-gamma", "majorVersion", javaVersion),
 					"arguments", Json.object("game", Json.array()), "libraries", libraries);
 		} catch (RuntimeException e) {
 			throw new IOException("Invalid fabric-installer.json in NeoFabric " + LOADER_VERSION, e);

@@ -36,11 +36,11 @@ public class ClientInstaller {
 		NeoFabricReleaseProvider.requireSupportedVersions(gameVersion, loaderVersion);
 		System.out.println("Installing " + gameVersion + " with NeoFabric " + loaderVersion.name);
 
-		String profileName = NeoFabricReleaseProvider.PROFILE_ID;
+		String profileName = NeoFabricReleaseProvider.profileId(gameVersion);
 		Path libsDir = mcDir.resolve("libraries");
 		progress.updateProgress(new MessageFormat(Utils.BUNDLE.getString("progress.download.library.entry")).format(new Object[]{NeoFabricReleaseProvider.LOADER_LIBRARY_NAME}));
 		Path loaderJar = NeoFabricReleaseProvider.downloadLoader(libsDir);
-		Json json = NeoFabricReleaseProvider.createClientProfile(loaderJar);
+		Json json = NeoFabricReleaseProvider.createClientProfile(loaderJar, gameVersion);
 
 		Path versionsDir = mcDir.resolve("versions");
 		Path profileDir = versionsDir.resolve(profileName);

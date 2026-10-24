@@ -17,8 +17,10 @@
 package net.fabricmc.installer.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import mjson.Json;
@@ -26,21 +28,32 @@ import mjson.Json;
 public class MetaHandler extends CompletableHandler<List<MetaHandler.GameVersion>> {
 	private final String name;
 	private final String metaPath;
-	private final String fixedVersion;
+	private final List<String> fixedVersions;
 	private List<GameVersion> versions;
 
 	public MetaHandler(String name, String path) {
 		this(name, path, null);
 	}
 
-	private MetaHandler(String name, String path, String fixedVersion) {
+	private MetaHandler(String name, String path, List<String> fixedVersions) {
 		this.name = name;
 		this.metaPath = path;
-		this.fixedVersion = fixedVersion;
+		this.fixedVersions = fixedVersions == null ? null : Collections.unmodifiableList(new ArrayList<>(fixedVersions));
 	}
 
 	public static MetaHandler fixedVersion(String name, String version) {
-		return new MetaHandler(name, null, version);
+		return fixedVersions(name, Collections.singletonList(version));
+	}
+
+	public static MetaHandler fixedVersions(String name, List<String> versions) {
+		Objects.requireNonNull(versions, "versions");
+		if (versions.isEmpty()) throw new IllegalArgumentException("Fixed metadata must contain at least one version");
+
+		for (String version : versions) {
+			if (version == null || version.isEmpty()) throw new IllegalArgumentException("Fixed metadata versions must not be empty");
+		}
+
+		return new MetaHandler(name, null, versions);
 	}
 
 	public String getName() {
@@ -48,8 +61,17 @@ public class MetaHandler extends CompletableHandler<List<MetaHandler.GameVersion
 	}
 
 	public void load() throws IOException {
-		Json json = fixedVersion == null ? FabricService.queryMetaJson(metaPath)
-				: Json.array(Json.object("version", fixedVersion, "stable", true));
+		Json json;
+
+		if (fixedVersions == null) {
+			json = FabricService.queryMetaJson(metaPath);
+		} else {
+			json = Json.array();
+
+			for (String version : fixedVersions) {
+				json.add(Json.object("version", version, "stable", true));
+			}
+		}
 
 		this.versions = json.asJsonList()
 				.stream()

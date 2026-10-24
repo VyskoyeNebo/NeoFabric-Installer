@@ -80,9 +80,13 @@ public class InstallerGui extends JFrame {
 
 		InstallerGui dialog = new InstallerGui();
 		dialog.updateSize(true);
-		dialog.setTitle(Utils.BUNDLE.getString("installer.title") + " - Minecraft " + NeoFabricReleaseProvider.MINECRAFT_VERSION);
+		dialog.setTitle(windowTitle());
 		dialog.setLocationRelativeTo(null);
 		dialog.setVisible(true);
+	}
+
+	public static String windowTitle() {
+		return Utils.BUNDLE.getString("installer.title") + " - Minecraft 1.20.1–1.20.6";
 	}
 
 	public void updateSize(boolean updateMinimum) {

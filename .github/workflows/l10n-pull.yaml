@@ -26,6 +26,7 @@ permissions:
 
 jobs:
   l10n-pull:
+    if: github.repository == 'FabricMC/fabric-installer'
     runs-on: ubuntu-24.04
     steps:
       - if: startsWith(github.ref_name, 'l10n/')

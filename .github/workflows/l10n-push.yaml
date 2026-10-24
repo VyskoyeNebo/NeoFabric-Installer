@@ -26,6 +26,7 @@ concurrency:
 
 jobs:
   l10n-push:
+    if: github.repository == 'FabricMC/fabric-installer'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4

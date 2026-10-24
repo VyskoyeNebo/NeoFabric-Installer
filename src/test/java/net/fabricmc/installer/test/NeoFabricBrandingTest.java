@@ -49,14 +49,14 @@ public class NeoFabricBrandingTest {
 				"neofabric-loader-1.20.1", Json.object("name", "old name", "icon", "old icon")));
 		Files.write(file, original.toString().getBytes(StandardCharsets.UTF_8));
 		ProfileInstaller installer = new ProfileInstaller(directory);
-		installer.setupProfile(NeoFabricReleaseProvider.PROFILE_ID, "1.20.1", ProfileInstaller.LauncherType.WIN32);
-		installer.setupProfile(NeoFabricReleaseProvider.PROFILE_ID, "1.20.1", ProfileInstaller.LauncherType.WIN32);
+		installer.setupProfile(NeoFabricReleaseProvider.profileId("1.20.1"), "1.20.1", ProfileInstaller.LauncherType.WIN32);
+		installer.setupProfile(NeoFabricReleaseProvider.profileId("1.20.1"), "1.20.1", ProfileInstaller.LauncherType.WIN32);
 		Json profiles = Json.read(Utils.readString(file)).at("profiles");
 		Assert.assertEquals(fabric, profiles.at("fabric-loader-1.20.1"));
 		Assert.assertEquals(2, profiles.asJsonMap().size());
 		Json neoFabric = profiles.at("neofabric-loader-1.20.1");
 		Assert.assertEquals("NeoFabric 1.20.1", neoFabric.at("name").asString());
-		Assert.assertEquals(NeoFabricReleaseProvider.PROFILE_ID, neoFabric.at("lastVersionId").asString());
+		Assert.assertEquals(NeoFabricReleaseProvider.profileId("1.20.1"), neoFabric.at("lastVersionId").asString());
 		Assert.assertEquals(Utils.getProfileIcon(), neoFabric.at("icon").asString());
 	}
 
@@ -65,7 +65,7 @@ public class NeoFabricBrandingTest {
 		Path directory = temporary.getRoot().toPath();
 		Path file = directory.resolve("launcher_profiles.json");
 		Files.write(file, "{}".getBytes(StandardCharsets.UTF_8));
-		new ProfileInstaller(directory).setupProfile(NeoFabricReleaseProvider.PROFILE_ID, "1.20.1", ProfileInstaller.LauncherType.WIN32);
+		new ProfileInstaller(directory).setupProfile(NeoFabricReleaseProvider.profileId("1.20.1"), "1.20.1", ProfileInstaller.LauncherType.WIN32);
 		Assert.assertEquals("NeoFabric 1.20.1", Json.read(Utils.readString(file)).at("profiles").at("neofabric-loader-1.20.1").at("name").asString());
 	}
 
@@ -94,16 +94,25 @@ public class NeoFabricBrandingTest {
 
 	@Test
 	public void successMessageExplainsBundledApiAndModGate() throws Exception {
-		String expected = "安装成功！NeoFabric 已内置 Fabric API，请勿放入普通 Fabric 模组，仅支持声明 NeoFabric 兼容标识的定制模组。";
+		String expected = "安装成功！NeoFabric 已内置 Fabric API，已为你准备好多版本内置 API，请勿放入普通 Fabric 模组，仅支持声明 NeoFabric 兼容标识的定制模组。";
 
-		for (String resource : new String[] {"/lang/installer.properties", "/lang/installer_zh_cn.properties"}) {
+		for (String resource : new String[] {
+				"/lang/installer.properties", "/lang/installer_ar_ar.properties", "/lang/installer_cs_cz.properties",
+				"/lang/installer_de_de.properties", "/lang/installer_el_gr.properties", "/lang/installer_es_ar.properties",
+				"/lang/installer_es_es.properties", "/lang/installer_et_ee.properties", "/lang/installer_fi_fi.properties",
+				"/lang/installer_fr_ca.properties", "/lang/installer_fr_fr.properties", "/lang/installer_it_it.properties",
+				"/lang/installer_ja_jp.properties", "/lang/installer_ko_kr.properties", "/lang/installer_ms_my.properties",
+				"/lang/installer_nl_nl.properties", "/lang/installer_pl_pl.properties", "/lang/installer_pt_br.properties",
+				"/lang/installer_ru_ru.properties", "/lang/installer_uk_ua.properties", "/lang/installer_vi_vn.properties",
+				"/lang/installer_zh_cn.properties", "/lang/installer_zh_tw.properties", "/lang/installer_zlm_arab.properties"
+		}) {
 			Properties language = new Properties();
 
 			try (InputStream input = getClass().getResourceAsStream(resource)) {
 				language.load(new InputStreamReader(input, StandardCharsets.UTF_8));
 			}
 
-			Assert.assertTrue(language.getProperty("installer.title").startsWith("NeoFabric"));
+			Assert.assertTrue(language.getProperty("installer.title").contains("NeoFabric"));
 			Assert.assertEquals(expected, language.getProperty("prompt.install.successful"));
 		}
 	}
