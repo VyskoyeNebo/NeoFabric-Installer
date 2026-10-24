@@ -1,2 +1,2 @@
-# fabric-installer
-An Installer for Fabric
+# neofabric-installer
+An Installer for neoFabric
