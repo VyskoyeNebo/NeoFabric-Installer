@@ -56,11 +56,11 @@ public class NeoFabricProfileIsolationTest {
 	}
 
 	@Test
-	public void installsAllSixProfilesAlongsideFabricAndPreservesJavaCustomizations() throws Exception {
+	public void installsAllEighteenProfilesAlongsideFabricAndPreservesJavaCustomizations() throws Exception {
 		Path gameDir = temporary.getRoot().toPath();
 		Path launcherFile = gameDir.resolve(launcherType.profileJsonName);
 		Json fabric = Json.object("name", "Fabric untouched", "lastVersionId", "fabric-loader-0.20.1-1.20.1", "icon", "Furnace");
-		Json previousNeoFabric = Json.object("name", "old name", "lastVersionId", "neofabric-loader-0.20.1-1.20.1",
+		Json previousNeoFabric = Json.object("name", "old name", "lastVersionId", "neofabric-loader-1.0.0-1.20.1",
 				"javaDir", "custom/java17/bin/java", "javaArgs", "-Xmx4G -Duser.preference=true");
 		Json original = Json.object("profiles", Json.object("fabric-loader-1.20.1", fabric, "neofabric-loader-1.20.1", previousNeoFabric));
 		Files.write(launcherFile, original.toString().getBytes(StandardCharsets.UTF_8));
@@ -72,19 +72,19 @@ public class NeoFabricProfileIsolationTest {
 
 		installer.setupProfile(NeoFabricReleaseProvider.profileId("1.20.6"), "1.20.6", launcherType);
 		Json profiles = Json.read(Utils.readString(launcherFile)).at("profiles");
-		Assert.assertEquals(7, profiles.asJsonMap().size());
+		Assert.assertEquals(19, profiles.asJsonMap().size());
 		Assert.assertEquals(fabric, profiles.at("fabric-loader-1.20.1"));
 		Set<String> installedVersions = new HashSet<>();
 
 		for (String version : NeoFabricReleaseProvider.MINECRAFT_VERSIONS) {
 			Json profile = profiles.at("neofabric-loader-" + version);
 			Assert.assertEquals("NeoFabric " + version, profile.at("name").asString());
-			Assert.assertEquals("neofabric-loader-1.0.0-" + version, profile.at("lastVersionId").asString());
+			Assert.assertEquals("neofabric-loader-1.2.0-" + version, profile.at("lastVersionId").asString());
 			Assert.assertEquals(Utils.getProfileIcon(), profile.at("icon").asString());
 			Assert.assertTrue(installedVersions.add(profile.at("lastVersionId").asString()));
 		}
 
-		Assert.assertEquals(6, installedVersions.size());
+		Assert.assertEquals(18, installedVersions.size());
 		Assert.assertEquals("custom/java17/bin/java", profiles.at("neofabric-loader-1.20.1").at("javaDir").asString());
 		Assert.assertEquals("-Xmx4G -Duser.preference=true", profiles.at("neofabric-loader-1.20.1").at("javaArgs").asString());
 	}

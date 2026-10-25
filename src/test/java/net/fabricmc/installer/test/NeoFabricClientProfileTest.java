@@ -51,7 +51,19 @@ public class NeoFabricClientProfileTest {
 				{"1.20.3", 17, "java-runtime-gamma"},
 				{"1.20.4", 17, "java-runtime-gamma"},
 				{"1.20.5", 21, "java-runtime-delta"},
-				{"1.20.6", 21, "java-runtime-delta"}
+				{"1.20.6", 21, "java-runtime-delta"},
+				{"1.21", 21, "java-runtime-delta"},
+				{"1.21.1", 21, "java-runtime-delta"},
+				{"1.21.2", 21, "java-runtime-delta"},
+				{"1.21.3", 21, "java-runtime-delta"},
+				{"1.21.4", 21, "java-runtime-delta"},
+				{"1.21.5", 21, "java-runtime-delta"},
+				{"1.21.6", 21, "java-runtime-delta"},
+				{"1.21.7", 21, "java-runtime-delta"},
+				{"1.21.8", 21, "java-runtime-delta"},
+				{"1.21.9", 21, "java-runtime-delta"},
+				{"1.21.10", 21, "java-runtime-delta"},
+				{"1.21.11", 21, "java-runtime-delta"}
 		});
 	}
 
@@ -74,7 +86,7 @@ public class NeoFabricClientProfileTest {
 	@Test
 	public void generatedProfileUsesSelectedGameVersionAndVanillaArguments() throws Exception {
 		Json profile = Json.read(NeoFabricReleaseProvider.createClientProfile(loaderJar, gameVersion).toString());
-		Assert.assertEquals("neofabric-loader-1.0.0-" + gameVersion, profile.at("id").asString());
+		Assert.assertEquals("neofabric-loader-1.2.0-" + gameVersion, profile.at("id").asString());
 		Assert.assertEquals(gameVersion, profile.at("inheritsFrom").asString());
 		Assert.assertEquals("release", profile.at("type").asString());
 		Assert.assertEquals("net.fabricmc.loader.impl.launch.knot.KnotClient", profile.at("mainClass").asString());
@@ -91,10 +103,10 @@ public class NeoFabricClientProfileTest {
 	public void librariesUsePinnedReleaseArtifactAndMatchingIntermediary() throws Exception {
 		List<Json> libraries = NeoFabricReleaseProvider.createClientProfile(loaderJar, gameVersion).at("libraries").asJsonList();
 		Json loader = libraries.get(0);
-		Assert.assertEquals("io.github.vyskoyenebo:neofabric-loader:1.0.0", loader.at("name").asString());
+		Assert.assertEquals("io.github.vyskoyenebo:neofabric-loader:1.2.0", loader.at("name").asString());
 		Json artifact = loader.at("downloads").at("artifact");
-		Assert.assertEquals("io/github/vyskoyenebo/neofabric-loader/1.0.0/neofabric-loader-1.0.0.jar", artifact.at("path").asString());
-		Assert.assertEquals("https://github.com/VyskoyeNebo/NeoFabric/releases/download/v1.0.0/neofabric-loader-1.0.0.jar", artifact.at("url").asString());
+		Assert.assertEquals("io/github/vyskoyenebo/neofabric-loader/1.2.0/neofabric-loader-1.2.0.jar", artifact.at("path").asString());
+		Assert.assertEquals("https://github.com/VyskoyeNebo/NeoFabric/releases/download/v1.2.0/neofabric-loader-1.2.0.jar", artifact.at("url").asString());
 		Assert.assertEquals(NeoFabricLoaderFixture.digest(loaderJar, "SHA-1"), artifact.at("sha1").asString());
 		Assert.assertEquals(Files.size(loaderJar), artifact.at("size").asLong());
 		Assert.assertEquals("net.fabricmc:intermediary:" + gameVersion, libraries.get(1).at("name").asString());

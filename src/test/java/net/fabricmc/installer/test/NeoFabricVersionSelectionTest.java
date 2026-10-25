@@ -40,7 +40,7 @@ import net.fabricmc.installer.util.ArgumentParser;
 import net.fabricmc.installer.util.MetaHandler;
 
 public class NeoFabricVersionSelectionTest {
-	private static final List<String> EXPECTED_VERSIONS = Arrays.asList("1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1");
+	private static final List<String> EXPECTED_VERSIONS = Arrays.asList("1.21.11", "1.21.10", "1.21.9", "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1");
 	private MetaHandler previousGameMetadata;
 	private MetaHandler previousLoaderMetadata;
 
@@ -59,13 +59,13 @@ public class NeoFabricVersionSelectionTest {
 	}
 
 	@Test
-	public void fixedMetadataLoadsExactlySixStableVersionsWithoutNetwork() {
+	public void fixedMetadataLoadsExactlyEighteenStableVersionsWithoutNetwork() {
 		Main.loadMetadata();
 		Assert.assertEquals(EXPECTED_VERSIONS, Main.GAME_VERSION_META.getVersions().stream()
 				.map(MetaHandler.GameVersion::getVersion).collect(Collectors.toList()));
 		Assert.assertTrue(Main.GAME_VERSION_META.getVersions().stream().allMatch(MetaHandler.GameVersion::isStable));
-		Assert.assertEquals("1.20.6", Main.GAME_VERSION_META.getLatestVersion(false).getVersion());
-		Assert.assertEquals("1.0.0", Main.LOADER_META.getLatestVersion(false).getVersion());
+		Assert.assertEquals("1.21.11", Main.GAME_VERSION_META.getLatestVersion(false).getVersion());
+		Assert.assertEquals("1.2.0", Main.LOADER_META.getLatestVersion(false).getVersion());
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class NeoFabricVersionSelectionTest {
 	}
 
 	@Test
-	public void commandLineAcceptsEveryExactReleaseAndDefaultsTo1206() {
+	public void commandLineAcceptsEveryExactReleaseAndDefaultsTo12111() {
 		Main.loadMetadata();
 		ClientCliProbe probe = new ClientCliProbe();
 
@@ -88,8 +88,8 @@ public class NeoFabricVersionSelectionTest {
 			Assert.assertEquals(version, probe.gameVersion(ArgumentParser.create(new String[] {"client", "-mcversion", version})));
 		}
 
-		Assert.assertEquals("1.20.6", probe.gameVersion(ArgumentParser.create(new String[] {"client"})));
-		Assert.assertEquals("1.20.6", probe.gameVersion(ArgumentParser.create(new String[] {"client", "-mcversion", "latest"})));
+		Assert.assertEquals("1.21.11", probe.gameVersion(ArgumentParser.create(new String[] {"client"})));
+		Assert.assertEquals("1.21.11", probe.gameVersion(ArgumentParser.create(new String[] {"client", "-mcversion", "latest"})));
 	}
 
 	@Test
@@ -97,7 +97,7 @@ public class NeoFabricVersionSelectionTest {
 		Main.loadMetadata();
 		ClientCliProbe probe = new ClientCliProbe();
 
-		for (String invalid : Arrays.asList("1.20", "1.20.7", "1.21", "1.20.5-pre1", "1.20.6-rc1", "24w14a", "1.20.5 (Java 21)", " 1.20.5")) {
+		for (String invalid : Arrays.asList("1.20", "1.20.7", "1.21.0", "1.21.12", "1.22", "1.20.5-pre1", "1.20.6-rc1", "24w14a", "1.20.5 (Java 21)", " 1.20.5")) {
 			Assert.assertNull(Main.GAME_VERSION_META.parseVersion(invalid, true));
 			Assert.assertThrows(IllegalArgumentException.class, () -> probe.gameVersion(ArgumentParser.create(new String[] {
 					"client", "-mcversion", invalid, "-snapshot"
@@ -113,7 +113,7 @@ public class NeoFabricVersionSelectionTest {
 			Main.loadMetadata();
 			JComboBox<String> versions = handler.gameVersionComboBox;
 			Assert.assertEquals(EXPECTED_VERSIONS.size(), versions.getItemCount());
-			Assert.assertEquals("1.20.6", versions.getSelectedItem());
+			Assert.assertEquals("1.21.11", versions.getSelectedItem());
 			Assert.assertFalse(handler.snapshotCheckBox.isEnabled());
 			ListCellRenderer<? super String> renderer = versions.getRenderer();
 
@@ -124,7 +124,7 @@ public class NeoFabricVersionSelectionTest {
 				Assert.assertEquals(version, versions.getSelectedItem());
 				JLabel rendered = (JLabel) renderer.getListCellRendererComponent(new JList<String>(), version, i, false, false);
 
-				if (version.equals("1.20.5") || version.equals("1.20.6")) {
+				if (!Arrays.asList("1.20.1", "1.20.2", "1.20.3", "1.20.4").contains(version)) {
 					Assert.assertEquals(version + " (Java 21)", rendered.getText());
 				} else {
 					Assert.assertEquals(version, rendered.getText());
@@ -136,7 +136,7 @@ public class NeoFabricVersionSelectionTest {
 	@Test
 	public void windowTitleShowsTheEntireSupportedRange() {
 		Assert.assertTrue(InstallerGui.windowTitle().contains("NeoFabric"));
-		Assert.assertTrue(InstallerGui.windowTitle().contains("Minecraft 1.20.1–1.20.6"));
+		Assert.assertTrue(InstallerGui.windowTitle().contains("Minecraft 1.20.1–1.20.6 / 1.21–1.21.11"));
 	}
 
 	private static final class ClientCliProbe extends ClientHandler {

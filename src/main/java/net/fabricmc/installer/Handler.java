@@ -180,7 +180,7 @@ public abstract class Handler implements InstallerProgress {
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected, boolean focused) {
 			JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focused);
 
-			if ("1.20.5".equals(value) || "1.20.6".equals(value)) {
+			if (value instanceof String && NeoFabricReleaseProvider.MINECRAFT_VERSIONS.contains(value) && NeoFabricReleaseProvider.requiredJavaVersion((String) value) == 21) {
 				label.setText(value + " (Java 21)");
 			}
 

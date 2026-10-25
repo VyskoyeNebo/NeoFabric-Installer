@@ -86,7 +86,7 @@ public class InstallerGui extends JFrame {
 	}
 
 	public static String windowTitle() {
-		return Utils.BUNDLE.getString("installer.title") + " - Minecraft 1.20.1–1.20.6";
+		return Utils.BUNDLE.getString("installer.title") + " - Minecraft 1.20.1–1.20.6 / 1.21–1.21.11";
 	}
 
 	public void updateSize(boolean updateMinimum) {

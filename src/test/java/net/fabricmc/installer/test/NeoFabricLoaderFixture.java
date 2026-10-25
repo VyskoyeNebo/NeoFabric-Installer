@@ -32,7 +32,7 @@ final class NeoFabricLoaderFixture {
 
 	static Path requireLoaderJar() throws Exception {
 		String configured = System.getProperty("neofabric.test.loaderJar");
-		Assert.assertNotNull("Set neofabric.test.loaderJar to the downloaded official NeoFabric 1.0.0 jar; tests never download fixtures or skip verification.", configured);
+		Assert.assertNotNull("Set neofabric.test.loaderJar to the downloaded official NeoFabric 1.2.0 jar; tests never download fixtures or skip verification.", configured);
 		Assert.assertFalse("neofabric.test.loaderJar must not be empty", configured.trim().isEmpty());
 		Path fixture = Paths.get(configured);
 		Assert.assertTrue("Missing official Loader fixture: " + fixture, Files.isRegularFile(fixture));

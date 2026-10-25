@@ -39,15 +39,20 @@ import net.fabricmc.installer.util.Utils;
 
 public final class NeoFabricReleaseProvider {
 	public static final List<String> MINECRAFT_VERSIONS = Collections.unmodifiableList(Arrays.asList(
-			"1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1"));
-	public static final String LOADER_VERSION = "1.0.0";
-	public static final String LOADER_URL = "https://github.com/VyskoyeNebo/NeoFabric/releases/download/v1.0.0/neofabric-loader-1.0.0.jar";
-	public static final String LOADER_SHA256 = "155b81273ac03d56c3ea6c67e7fd7a64be5e3d29aa24551deceb09e413c8673d";
+			"1.21.11", "1.21.10", "1.21.9", "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1"));
+	public static final String LOADER_VERSION = "1.2.0";
+	public static final String LOADER_URL = "https://github.com/VyskoyeNebo/NeoFabric/releases/download/v1.2.0/neofabric-loader-1.2.0.jar";
+	public static final String LOADER_SHA256 = "b6c5d9d1f27fc0da250fc96a5095ac68cedb99bf46d6bd45206e0dcb60171f23";
 	public static final String LOADER_LIBRARY_NAME = "io.github.vyskoyenebo:neofabric-loader:" + LOADER_VERSION;
 	public static final String LOADER_LIBRARY_PATH = "io/github/vyskoyenebo/neofabric-loader/" + LOADER_VERSION + "/neofabric-loader-" + LOADER_VERSION + ".jar";
 	private static final String FABRIC_MAVEN = "https://maven.fabricmc.net/";
 
 	private NeoFabricReleaseProvider() {
+	}
+
+	public static int requiredJavaVersion(String gameVersion) {
+		if (!MINECRAFT_VERSIONS.contains(gameVersion)) throw new IllegalArgumentException("Unsupported Minecraft version: " + gameVersion);
+		return "1.20.1".equals(gameVersion) || "1.20.2".equals(gameVersion) || "1.20.3".equals(gameVersion) || "1.20.4".equals(gameVersion) ? 17 : 21;
 	}
 
 	public static String profileId(String gameVersion) throws IOException {
@@ -57,7 +62,7 @@ public final class NeoFabricReleaseProvider {
 
 	private static void requireSupportedGameVersion(String gameVersion) throws IOException {
 		if (!MINECRAFT_VERSIONS.contains(gameVersion)) {
-			throw new IOException("NeoFabric only supports Minecraft 1.20.1 through 1.20.6 official releases; requested: " + gameVersion);
+			throw new IOException("NeoFabric only supports Minecraft 1.20.1-1.20.6 and 1.21-1.21.11 (18 versions) official releases; requested: " + gameVersion);
 		}
 	}
 
@@ -127,7 +132,7 @@ public final class NeoFabricReleaseProvider {
 				}
 			}
 
-			int javaVersion = "1.20.5".equals(gameVersion) || "1.20.6".equals(gameVersion) ? 21 : 17;
+			int javaVersion = requiredJavaVersion(gameVersion);
 			return Json.object("id", profileId, "inheritsFrom", gameVersion, "type", "release",
 					"mainClass", metadata.at("mainClass").at("client").asString(),
 					"javaVersion", Json.object("component", javaVersion == 21 ? "java-runtime-delta" : "java-runtime-gamma", "majorVersion", javaVersion),
